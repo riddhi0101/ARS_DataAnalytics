@@ -31,7 +31,7 @@ ui <- dashboardPage(
                         start = Sys.Date() - 2, end = Sys.Date() + 2), #allows date range specification to see revenue for pop up sales within this range
                         
                         mainPanel(
-                            plotOutput("phonePlot")  #creating a spot for the pop up sales revenue barplot
+                            plotOutput("revenue_per_sale")  #creating a spot for the pop up sales revenue barplot
                         )
             ),
             
@@ -51,6 +51,14 @@ ui <- dashboardPage(
                             sliderInput("slider", "Number of observations:", 1, 100, 50)
                         )
                     ),
+                    fluidPage(
+                        dateRangeInput('dateRange',
+                        label = 'Date range: yyyy-mm-dd',
+                        start = Sys.Date() - 2, end = Sys.Date() + 2), 
+                        
+                        mainPanel(
+                            plotOutput("items_per_week")  
+                        )
                     DT::dataTableOutput("table")
             )
             
