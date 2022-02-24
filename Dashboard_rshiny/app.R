@@ -33,7 +33,7 @@ ui <- dashboardPage(
                         mainPanel(
                             plotOutput("revenue_per_sale")  #creating a spot for the pop up sales revenue barplot
                         )
-            ),
+            )),
             
             # Second tab content
             tabItem(tabName = "social",
@@ -58,7 +58,7 @@ ui <- dashboardPage(
                         
                         mainPanel(
                             plotOutput("items_per_week")  
-                        )
+                        ),
                     DT::dataTableOutput("table")
             )
             
@@ -66,6 +66,7 @@ ui <- dashboardPage(
     )
     
 
+)
 )
 
 server <- function(input, output) {
