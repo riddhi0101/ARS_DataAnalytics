@@ -12,6 +12,24 @@ library(shinydashboard)
 library(shiny)
 
 
+# Get data:
+library(gapminder)
+
+# Charge libraries:
+library(ggplot2)
+library(plotly)
+library(gapminder)
+
+p <- gapminder %>%
+  filter(year==1977) %>%
+  ggplot( aes(gdpPercap, lifeExp, size = pop, color=continent)) +
+  geom_point() +
+  theme_bw()
+
+my_plot1 = ggplotly(p)
+
+
+
 
 
 ui <- dashboardPage(
@@ -31,11 +49,10 @@ ui <- dashboardPage(
               h2("Overview"),
               fluidRow(
                 box(
-                  
+                  my_plot1,
                   title = 'Interactive Data Visualization',
                   width = 10,
                   height = 500,
-                  background = 'purple'
                 ),
               )
               
