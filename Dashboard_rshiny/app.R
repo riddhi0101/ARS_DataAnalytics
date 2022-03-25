@@ -48,7 +48,7 @@ ui <- dashboardPage(
       tabItem(tabName = "overview",
               h2("Overview"),
               fluidPage(
-                titlePanel("Total Revenue Per Popup Sale"),
+                titlePanel("Total Revenue Per Pop-up Sale"),
                 
                 sidebarPanel(
                   dateRangeInput(inputId = 'DateRangeInput',
