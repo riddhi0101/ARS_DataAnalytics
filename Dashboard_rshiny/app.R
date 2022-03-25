@@ -151,20 +151,24 @@ server <- function(input, output) {
   output$barchart <- renderPlot({
     
     dataFilter <- reactive({
-      clean_entire %>% 
+      table_out <- clean_entire %>% 
         filter(between(New_Date, input$DateRangeInput[1],
                        input$DateRangeInput[2])) %>%
         group_by(New_Date) %>%
         summarize(Total = sum(Price))
+      table_out$New_Date <- format(c(table_out$New_Date), format="%m/%d/%y")
+      table_out
     })
     
     ggplot(dataFilter(), 
-           aes(x = New_Date, 
+           aes(x = as.factor(New_Date), 
                y = Total)) + 
-      geom_bar(stat = "identity") +
-      labs(x = "Popup Sale Date", 
+      geom_bar(stat='identity', fill = "#1d6fa6") + #Other possible color: #3498DB 
+      labs(x = "Pop-up Sale Date", 
            y = "Total Revenue", 
-           title = "Total Revenue of Popup Sales by Date") 
+           title = "Total Revenue of Pop-up Sales by Date") + 
+      theme(plot.title = element_text(hjust = 0.5)) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 2)) 
   })
 }
 
