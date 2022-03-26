@@ -43,6 +43,7 @@ ui <- dashboardPage(
                             sliderInput("slider", "Number of observations:", 1, 100, 50)
                         )
                     ),
+                    fluidRow(box(plotOutput("top10"), width = 300)),
                     DT::dataTableOutput("table")
             )
             
@@ -52,9 +53,12 @@ ui <- dashboardPage(
 
 )
 
+library(dplyr)
+
 server <- function(input, output) {
     set.seed(122)
     histdata <- rnorm(500)
+    clean_entire <- read.csv("../Data/clean_entire.csv", header = TRUE)
     
     output$plot1 <- renderPlot({
         data <- histdata[seq_len(input$slider)]
@@ -65,6 +69,18 @@ server <- function(input, output) {
         data <- clean_entire
         data
     }))
-}
+    
+    output$top10 <- renderPlot({
+        data <- clean_entire %>%
+            group_by(Item) %>%
+            count(Item) %>%
+            arrange(desc(n))
+        
+        plot <- ggplot2::ggplot(data[1:10, ]) +
+                ggplot2::geom_bar(ggplot2::aes(x=Item, y=n, fill=Item),stat="identity")
+        
+        plot
+    })
 
+}
 shinyApp(ui, server)
