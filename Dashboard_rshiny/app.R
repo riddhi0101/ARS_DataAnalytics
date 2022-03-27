@@ -18,6 +18,11 @@ library(lubridate)
 
 ## app.R ##
 
+#Data Prep
+urlfile<-'https://raw.githubusercontent.com/riddhi0101/ARS_DataAnalytics/main/Dashboard_rshiny/popup_salesF21.csv'
+clean_entire<-read_csv(url(urlfile))
+clean_entire <- clean_entire[complete.cases(clean_entire),]
+
 ui <- dashboardPage(
   skin = "red",
   dashboardHeader(title = "Aggie Reuse Store Dashboard"),
@@ -64,7 +69,10 @@ ui <- dashboardPage(
                 dateRangeInput('dateRange',
                                label = 'Date',
                                start = Sys.Date() - 2, end = Sys.Date() + 2), 
-                box(plotOutput("top10", width = 800)),
+                box(
+                  title="Top 10 Selling Items",
+                  width = 800,
+                  plotOutput("top10", width = 800, height=500)),
                 mainPanel(
                   plotOutput("items_per_week")  
                 ),
@@ -164,7 +172,8 @@ server <- function(input, output) {
             arrange(desc(n))
         
         plot <- ggplot2::ggplot(data[1:10, ]) +
-                ggplot2::geom_bar(ggplot2::aes(x=Item, y=n, fill=Item),stat="identity")
+                ggplot2::geom_bar(ggplot2::aes(x=Item, y=n, fill=Item),stat="identity")+
+                ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 0.5, hjust=1))
         
         plot
     })
