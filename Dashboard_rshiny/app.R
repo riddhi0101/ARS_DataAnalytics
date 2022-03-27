@@ -16,20 +16,6 @@ library(ggplot2)
 library(dplyr)
 library(lubridate)
 
-urlfile<-'https://raw.githubusercontent.com/riddhi0101/ARS_DataAnalytics/main/Dashboard_rshiny/popup_salesF21.csv'
-clean_entire<-read_csv(url(urlfile))
-clean_entire <- clean_entire[complete.cases(clean_entire),]
-
-#Adding day of the week column to data set
-date_fact <- as.factor(clean_entire$Date)
-new_format<-strptime(date_fact,format="%m/%d/%y")
-new_date<-as.Date(new_format,format="%Y-%m-%d")
-
-clean_entire$New_Date <- new_date
-clean_entire$Day <- wday(clean_entire$New_Date,label=TRUE)
-
-clean_entire$Price <- as.numeric(round(parse_number(clean_entire$`Total Price`),0))
-
 ## app.R ##
 
 ui <- dashboardPage(
@@ -62,11 +48,6 @@ ui <- dashboardPage(
               )),
       
       # Second tab content
-      tabItem(tabName = "social",
-              h2("Social Media")
-      ),
-      
-      #Third tab content
       tabItem(tabName = "items",
               
               h2("Items Sold"),
@@ -92,26 +73,29 @@ ui <- dashboardPage(
                 
                 h2("Items Sold Per Day of the Week"),
                 
-                sidebarPanel(
-                  selectInput(
-                    inputId = "DayInput", 
-                    label = "Day", 
-                    choices = sort(unique(clean_entire$Day))),
-                  
-                  selectInput(
-                    inputId = "ItemInput", 
-                    label = "Item", 
-                    choices = sort(unique(clean_entire$Item))),
-                  
-                  dateRangeInput(inputId = 'DateRangeInput2',
-                                 label = 'Date',
-                                 start = min(clean_entire$New_Date), 
-                                 end = max(clean_entire$New_Date)),
-                  
+                tabPanel("Data Table", fluid = TRUE, 
+                         fluidRow(
+                           column(4, selectInput(
+                             inputId = "DayInput", 
+                             label = "Day", 
+                             choices = sort(unique(clean_entire$Day)))),
+                           column(4, selectInput(
+                             inputId = "ItemInput", 
+                             label = "Item", 
+                             choices = sort(unique(clean_entire$Item)))),
+                           column(4, dateRangeInput(inputId = 'DateRangeInput2',
+                                                    label = 'Date',
+                                                    start = min(clean_entire$New_Date), 
+                                                    end = max(clean_entire$New_Date)))
+                         ),
                   DT::dataTableOutput('table2')
                 ),
               )
               
+      ),
+      # Third tab content
+      tabItem(tabName = "social",
+              h2("Social Media")
       )
     )
     
