@@ -52,14 +52,6 @@ ui <- dashboardPage(
               
               h2("Items Sold"),
               
-              fluidRow(
-                box(plotOutput("plot1", height = 250)),
-                
-                box(
-                  title = "Controls",
-                  sliderInput("slider", "Number of observations:", 1, 100, 50)
-                )
-              ),
               fluidPage(
                 dateRangeInput('dateRange',
                                label = 'Date',
@@ -106,14 +98,6 @@ ui <- dashboardPage(
 library(dplyr)
 
 server <- function(input, output) {
-  set.seed(122)
-  histdata <- rnorm(500)
-  
-  output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data)
-  })
-  
   output$table <- DT::renderDataTable(DT::datatable({
     data <- clean_entire
     data
