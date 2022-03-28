@@ -19,9 +19,14 @@ library(lubridate)
 ## app.R ##
 
 #Data Prep
-urlfile<-'https://raw.githubusercontent.com/riddhi0101/ARS_DataAnalytics/main/Dashboard_rshiny/popup_salesF21.csv'
-clean_entire<-read_csv(url(urlfile))
+urlfile<-'https://raw.githubusercontent.com/riddhi0101/ARS_DataAnalytics/main/Data/clean_entire.csv'
+clean_entire <-read_csv(url(urlfile))
 clean_entire <- clean_entire[complete.cases(clean_entire),]
+clean_entire$Price <- as.numeric(round(parse_number(clean_entire$Price),0))
+
+#Adding new variables (day of the week and date as date type) to make some outputs easier to work with
+clean_entire$New_Date <- as.Date(strptime(as.factor(clean_entire$Date),format="%m/%d/%y"),format="%Y-%m-%d")
+clean_entire$Day <- wday(clean_entire$New_Date,label=TRUE)
 
 ui <- dashboardPage(
   skin = "red",
@@ -75,17 +80,19 @@ ui <- dashboardPage(
                            column(4, selectInput(
                              inputId = "DayInput", 
                              label = "Day", 
-                             choices = sort(unique(clean_entire$Day)))),
+                             choices = c(levels(factor(clean_entire$Day,order=FALSE)),'All'))),
+                    
                            column(4, selectInput(
                              inputId = "ItemInput", 
                              label = "Item", 
                              choices = sort(unique(clean_entire$Item)))),
+                           
                            column(4, dateRangeInput(inputId = 'DateRangeInput2',
                                                     label = 'Date',
                                                     start = min(clean_entire$New_Date), 
                                                     end = max(clean_entire$New_Date)))
                          ),
-                  DT::dataTableOutput('table2')
+                         DT::dataTableOutput('table2')
                 ),
               )
               
@@ -109,12 +116,19 @@ server <- function(input, output) {
   }))
   
   dataFilter2 <- reactive({
-    filtered <- clean_entire %>%
-      filter(Day == input$DayInput, Item == input$ItemInput, between(New_Date, input$DateRangeInput2[1],
-                                                                     input$DateRangeInput2[2])) %>%
+    if (input$DayInput != "All") {
+      filtered <- clean_entire %>%
+        filter(Day == input$DayInput, Item == input$ItemInput, between(New_Date, input$DateRangeInput2[1],
+                                                                               input$DateRangeInput2[2])) %>%
+        group_by(New_Date)
+      filtered[,c(1,8,2,4,3)]
+    }
+    else {filtered <- clean_entire %>%
+      filter(Item == input$ItemInput, between(New_Date, input$DateRangeInput2[1],
+                                                      input$DateRangeInput2[2])) %>%
       group_by(New_Date)
-    filtered[,c(1:3)]
-    
+    filtered[,c(1,8,2,4,3)]
+    }
   })
   
   output$table2 <- DT::renderDataTable(DT::datatable({
@@ -124,7 +138,7 @@ server <- function(input, output) {
   
   #Date range 
   output$barchart <- renderPlot({
-
+    
     dataFilter <- reactive({
       table_out <- clean_entire %>% 
         filter(between(New_Date, input$DateRangeInput[1],
@@ -145,19 +159,19 @@ server <- function(input, output) {
       theme(plot.title = element_text(hjust = 0.5)) +
       scale_x_discrete(guide = guide_axis(n.dodge = 2)) 
   })
+  
+  output$top10 <- renderPlot({
+    data <- clean_entire %>%
+      group_by(Item) %>%
+      count(Item) %>%
+      arrange(desc(n))
     
-    output$top10 <- renderPlot({
-        data <- clean_entire %>%
-            group_by(Item) %>%
-            count(Item) %>%
-            arrange(desc(n))
-        
-        plot <- ggplot2::ggplot(data[1:10, ]) +
-                ggplot2::geom_bar(ggplot2::aes(x=Item, y=n, fill=Item),stat="identity")+
-                ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 0.5, hjust=1))
-        
-        plot
-    })
-
+    plot <- ggplot2::ggplot(data[1:10, ]) +
+      ggplot2::geom_bar(ggplot2::aes(x=Item, y=n, fill=Item),stat="identity")+
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 0.5, hjust=1))
+    
+    plot
+  })
+  
 }
 shinyApp(ui, server)
