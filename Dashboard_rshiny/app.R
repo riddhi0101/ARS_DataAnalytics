@@ -65,9 +65,6 @@ ui <- dashboardPage(
                   title="Top 10 Selling Items",
                   width = 800,
                   plotOutput("top10", width = 800, height=500)),
-                mainPanel(
-                  plotOutput("items_per_week")  
-                ),
                 
                 DT::dataTableOutput("table"),
                 
