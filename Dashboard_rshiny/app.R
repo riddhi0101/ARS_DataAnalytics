@@ -81,7 +81,7 @@ ui <- dashboardPage(
                              inputId = "DayInput", 
                              label = "Day", 
                              choices = c(levels(factor(clean_entire$Day,order=FALSE)),'All'))),
-                    
+                           
                            column(4, selectInput(
                              inputId = "ItemInput", 
                              label = "Item", 
@@ -99,7 +99,33 @@ ui <- dashboardPage(
       ),
       # Third tab content
       tabItem(tabName = "social",
-              h2("Social Media")
+              h2("Social Media"),
+              #from online reference
+              #databases
+              shinyUI(pageWithSidebar(
+                headerPanel("Social Media Analytics"),
+                
+                sidebarPanel(
+               
+                  fileInput('datafile', 'Choose CSV file',
+                            accept=c('text/csv', 'text/comma-separated-values,text/plain')),
+                 
+                  uiOutput("fromCol"),
+                  uiOutput("toCol"),
+                  uiOutput("amountflag"),
+            
+                  conditionalPanel(
+                    condition="input.amountflag==true",
+                    uiOutput("amountCol")
+                  ),
+                 
+                  
+                ),
+                mainPanel(
+                  tableOutput("filetable"),
+                  tableOutput("geotable")
+                )
+              ))
       )
     )
     
@@ -119,13 +145,13 @@ server <- function(input, output) {
     if (input$DayInput != "All") {
       filtered <- clean_entire %>%
         filter(Day == input$DayInput, Item == input$ItemInput, between(New_Date, input$DateRangeInput2[1],
-                                                                               input$DateRangeInput2[2])) %>%
+                                                                       input$DateRangeInput2[2])) %>%
         group_by(New_Date)
       filtered[,c(1,8,2,4,3)]
     }
     else {filtered <- clean_entire %>%
       filter(Item == input$ItemInput, between(New_Date, input$DateRangeInput2[1],
-                                                      input$DateRangeInput2[2])) %>%
+                                              input$DateRangeInput2[2])) %>%
       group_by(New_Date)
     filtered[,c(1,8,2,4,3)]
     }
