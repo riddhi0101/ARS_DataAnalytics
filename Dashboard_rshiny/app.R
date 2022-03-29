@@ -9,6 +9,8 @@
 
 ## app.R ##
 library(shinydashboard)
+library(dplyr)
+library(plotly)
 
 ui <- dashboardPage(
     skin = "red",
@@ -59,7 +61,7 @@ ui <- dashboardPage(
                         selectInput('cat', 'Category', c('All', levels(clean_entire$Category))),
                         
                         mainPanel(
-                            plotOutput("piechart")  
+                            plotlyOutput("piechart")  
                         ),
                     ),
                     fluidPage(
@@ -92,7 +94,7 @@ server <- function(input, output) {
         data
     }))
     
-    output$piechart <- renderPlot({
+    output$piechart <- renderPlotly({
         
         time_start = as.Date(input$dateRangePie[1])
         time_end = as.Date(input$dateRangePie[2])
@@ -100,7 +102,7 @@ server <- function(input, output) {
         cat = input$cat
         print(cat)
         if (cat == 'All') {
-            subset_df = df %>% filter(Date >= time_start, Date <= time_end) %>% count(Category)
+            subset_df = clean_entire %>% filter(Date >= time_start, Date <= time_end) %>% count(Category)
             title = 'Category Breakdown of All Items Sold'
             fig <- plot_ly(subset_df, labels = ~Category, values = ~n, type = 'pie')
             fig <- fig %>% layout(title = title,
@@ -110,7 +112,7 @@ server <- function(input, output) {
             
         }else{
             title = paste('Items sold in ', cat)
-            subset_df = df %>% filter(Date >= time_start, Date <= time_end, Category == cat) %>% count(Item)
+            subset_df = clean_entire %>% filter(Date >= time_start, Date <= time_end, Category == cat) %>% count(Item)
             fig <- plot_ly(subset_df, labels = ~Item, values = ~n, type = 'pie')
             fig <- fig %>% layout(title = title,
                                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
