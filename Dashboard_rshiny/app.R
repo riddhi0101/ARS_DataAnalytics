@@ -15,6 +15,7 @@ library(shiny)
 library(ggplot2)
 library(dplyr)
 library(lubridate)
+library(plotly)
 
 ## app.R ##
 
@@ -44,6 +45,11 @@ ui <- dashboardPage(
       tabItem(tabName = "overview",
               h2("Overview"),
               fluidPage(
+                fluidRow(
+                  infoBox("Total Items Sold", nrow(clean_entire), icon = icon("cash-register"), fill = TRUE),
+                  infoBox("Pop-up Sales Revenue", sum(popupsales$price), icon = icon("credit-card"), fill = TRUE, color = "olive"),
+                  infoBox("Fall Sales Revenue", sum(clean_entire$Price), icon = icon("store"), fill = TRUE, color = "purple")
+                ), 
                 titlePanel("Total Revenue Per Pop-up Sale"),
                 
                 sidebarPanel(
@@ -81,17 +87,6 @@ ui <- dashboardPage(
                     mainPanel(
                         plotlyOutput("piechart")  
                     ),
-                ),
-                
-                DT::dataTableOutput("table"),
-                
-                fluidRow(
-                    box(plotOutput("plot1", height = 250)),
-                    
-                    box(
-                        title = "Controls",
-                        sliderInput("slider", "Number of observations:", 1, 100, 50)
-                    )
                 ),
                 
                 h2("Items Sold Per Day of the Week"),
@@ -157,10 +152,6 @@ ui <- dashboardPage(
 library(dplyr)
 
 server <- function(input, output) {
-  output$table <- DT::renderDataTable(DT::datatable({
-    data <- clean_entire
-    data
-  }))
   
   dataFilter2 <- reactive({
     if (input$DayInput != "All") {

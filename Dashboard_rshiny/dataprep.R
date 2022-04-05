@@ -2,9 +2,10 @@ library(readr)
 library(lubridate)
 
 #Data Prep
-urlfile<-'https://raw.githubusercontent.com/riddhi0101/ARS_DataAnalytics/main/Dashboard_rshiny/popup_salesF21.csv'
-clean_entire<-read_csv(url(urlfile))
-clean_entire <- clean_entire[complete.cases(clean_entire),]
+#Popup Sales
+urlfile2<-'https://raw.githubusercontent.com/riddhi0101/ARS_DataAnalytics/main/Dashboard_rshiny/popup_salesF21.csv'
+popupsales<-read_csv(url(urlfile2))
+popupsales$price = as.numeric(gsub("\\$", "", popupsales$`Total Price`))
 
 #First Page: 
 
