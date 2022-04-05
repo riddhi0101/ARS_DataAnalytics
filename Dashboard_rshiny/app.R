@@ -54,11 +54,11 @@ ui <- dashboardPage(
                         )
                     ),
                     fluidRow(
-                        dateRangeInput('dateRangePie',
+                        column(4, dateRangeInput('dateRangePie',
                                        label = 'Date range: yyyy-mm-dd',
-                                       start = Sys.Date() - 2, end = Sys.Date() + 2), 
+                                       start = Sys.Date() - 2, end = Sys.Date() + 2)), 
                         
-                        selectInput('cat', 'Category', c('All', levels(clean_entire$Category))),
+                        column(4,selectInput('cat', 'Category', c('All', levels(clean_entire$Category)))),
                         
                         mainPanel(
                             plotlyOutput("piechart")  
