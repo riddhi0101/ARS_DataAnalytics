@@ -78,15 +78,15 @@ ui <- dashboardPage(
                   plotOutput("top10", width = 800, height=500)),
                 
                 fluidRow(
-                    column(4, dateRangeInput('dateRangePie',
-                                             label = 'Date range: yyyy-mm-dd',
-                                             start = Sys.Date() - 2, end = Sys.Date() + 2)), 
-                    
-                    column(4,selectInput('cat', 'Category', c('All', levels(clean_entire$Category)))),
-                    
-                    mainPanel(
-                        plotlyOutput("piechart")  
-                    ),
+                  column(4, dateRangeInput('dateRangePie',
+                                           label = 'Date range: yyyy-mm-dd',
+                                           start = Sys.Date() - 2, end = Sys.Date() + 2)), 
+                  
+                  column(4,selectInput('cat', 'Category', c('All', levels(clean_entire$Category)))),
+                  
+                  mainPanel(
+                    plotlyOutput("piechart")  
+                  ),
                 ),
                 
                 h2("Items Sold Per Day of the Week"),
@@ -116,25 +116,26 @@ ui <- dashboardPage(
       # Third tab content
       tabItem(tabName = "social",
               h2("Social Media"),
+              h2("Link to social media analytics:https://raw.githubusercontent.com/riddhi0101/ARS_DataAnalytics/main/Dashboard_rshiny/app.R "),
               #from online reference
               #databases
               shinyUI(pageWithSidebar(
                 headerPanel("Social Media Analytics"),
                 
                 sidebarPanel(
-               
+                  
                   fileInput('datafile', 'Choose CSV file',
                             accept=c('text/csv', 'text/comma-separated-values,text/plain')),
-                 
+                  
                   uiOutput("fromCol"),
                   uiOutput("toCol"),
                   uiOutput("amountflag"),
-            
+                  
                   conditionalPanel(
                     condition="input.amountflag==true",
                     uiOutput("amountCol")
                   ),
-                 
+                  
                   
                 ),
                 mainPanel(
@@ -212,31 +213,31 @@ server <- function(input, output) {
   })
   
   output$piechart <- renderPlotly({
-
-      time_start = as.Date(input$dateRangePie[1])
-      time_end = as.Date(input$dateRangePie[2])
-
-      cat = input$cat
-      print(cat)
-      if (cat == 'All') {
-          subset_df = clean_entire %>% filter(New_Date >= time_start, New_Date <= time_end) %>% count(Category)
-          title = 'Category Breakdown of All Items Sold'
-          fig <- plot_ly(subset_df, labels = ~Category, values = ~n, type = 'pie')
-          fig <- fig %>% layout(title = title,
-                                xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                                yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-
-
-      }else{
-          title = paste('Items sold in ', cat)
-          subset_df = clean_entire %>% filter(New_Date >= time_start, New_Date <= time_end, Category == cat) %>% count(Item)
-          fig <- plot_ly(subset_df, labels = ~Item, values = ~n, type = 'pie')
-          fig <- fig %>% layout(title = title,
-                                xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                                yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-      }
-      fig
-
+    
+    time_start = as.Date(input$dateRangePie[1])
+    time_end = as.Date(input$dateRangePie[2])
+    
+    cat = input$cat
+    print(cat)
+    if (cat == 'All') {
+      subset_df = clean_entire %>% filter(New_Date >= time_start, New_Date <= time_end) %>% count(Category)
+      title = 'Category Breakdown of All Items Sold'
+      fig <- plot_ly(subset_df, labels = ~Category, values = ~n, type = 'pie')
+      fig <- fig %>% layout(title = title,
+                            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+      
+      
+    }else{
+      title = paste('Items sold in ', cat)
+      subset_df = clean_entire %>% filter(New_Date >= time_start, New_Date <= time_end, Category == cat) %>% count(Item)
+      fig <- plot_ly(subset_df, labels = ~Item, values = ~n, type = 'pie')
+      fig <- fig %>% layout(title = title,
+                            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+    }
+    fig
+    
   })
   
 }
