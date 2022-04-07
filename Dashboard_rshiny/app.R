@@ -69,9 +69,7 @@ ui <- dashboardPage(
               h2("Items Sold"),
               
               fluidPage(
-                dateRangeInput('dateRange',
-                               label = 'Date',
-                               start = Sys.Date() - 2, end = Sys.Date() + 2), 
+                
                 box(
                   title="Top 10 Selling Items",
                   width = 800,
@@ -80,7 +78,7 @@ ui <- dashboardPage(
                 fluidRow(
                   column(4, dateRangeInput('dateRangePie',
                                            label = 'Date range: yyyy-mm-dd',
-                                           start = Sys.Date() - 2, end = Sys.Date() + 2)), 
+                                           start = min(clean_entire$New_Date), end = Sys.Date() + 2)), 
                   
                   column(4,selectInput('cat', 'Category', c('All', levels(clean_entire$Category)))),
                   
@@ -101,7 +99,7 @@ ui <- dashboardPage(
                            column(4, selectInput(
                              inputId = "ItemInput", 
                              label = "Item", 
-                             choices = sort(unique(clean_entire$Item)))),
+                             choices = c('All', sort(unique(clean_entire$Item))))),
                            
                            column(4, dateRangeInput(inputId = 'DateRangeInput2',
                                                     label = 'Date',
@@ -156,17 +154,40 @@ server <- function(input, output) {
   
   dataFilter2 <- reactive({
     if (input$DayInput != "All") {
-      filtered <- clean_entire %>%
+      if (input$ItemInput == 'All'){
+        filtered <- clean_entire %>%
+          filter(Day == input$DayInput, between(New_Date, input$DateRangeInput2[1],
+                                                                         input$DateRangeInput2[2])) %>%
+          group_by(New_Date)
+        
+        filtered[,c(1,8,2,4,3)]
+      }
+      else{filtered <- clean_entire %>%
         filter(Day == input$DayInput, Item == input$ItemInput, between(New_Date, input$DateRangeInput2[1],
                                                                        input$DateRangeInput2[2])) %>%
         group_by(New_Date)
+      
       filtered[,c(1,8,2,4,3)]
+      }
+      
     }
-    else {filtered <- clean_entire %>%
-      filter(Item == input$ItemInput, between(New_Date, input$DateRangeInput2[1],
-                                              input$DateRangeInput2[2])) %>%
-      group_by(New_Date)
-    filtered[,c(1,8,2,4,3)]
+    else {
+      if (input$ItemInput == 'All'){
+        filtered <- clean_entire %>%
+          filter(between(New_Date, input$DateRangeInput2[1],
+                                                  input$DateRangeInput2[2])) %>%
+          group_by(New_Date)
+        filtered[,c(1,8,2,4,3)]
+        
+      }
+      else{
+        filtered <- clean_entire %>%
+          filter(Item == input$ItemInput, between(New_Date, input$DateRangeInput2[1],
+                                                  input$DateRangeInput2[2])) %>%
+          group_by(New_Date)
+        filtered[,c(1,8,2,4,3)]
+      }
+      
     }
   })
   
