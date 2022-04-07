@@ -11,6 +11,8 @@ popupsales$price = as.numeric(gsub("\\$", "", popupsales$`Total Price`))
 
 #Second Page
 #Adding day of the week column to data set
+urlfile<-'https://raw.githubusercontent.com/riddhi0101/ARS_DataAnalytics/main/Data/clean_entire.csv'
+clean_entire <-read_csv(url(urlfile))
 date_fact <- as.factor(clean_entire$Date)
 new_format<-strptime(date_fact,format="%m/%d/%y")
 new_date<-as.Date(new_format,format="%Y-%m-%d")
