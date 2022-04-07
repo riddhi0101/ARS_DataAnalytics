@@ -47,7 +47,7 @@ ui <- dashboardPage(
               fluidPage(
                 fluidRow(
                   infoBox("Total Items Sold", nrow(clean_entire), icon = icon("cash-register"), fill = TRUE),
-                  infoBox("Pop-up Sales Revenue", sum(popupsales$price), icon = icon("credit-card"), fill = TRUE, color = "olive"),
+                  #infoBox("Pop-up Sales Revenue", sum(popupsales$price), icon = icon("credit-card"), fill = TRUE, color = "olive"),
                   infoBox("Fall Sales Revenue", sum(clean_entire$Price), icon = icon("store"), fill = TRUE, color = "purple")
                 ), 
                 titlePanel("Total Revenue Per Pop-up Sale"),
@@ -69,7 +69,9 @@ ui <- dashboardPage(
               h2("Items Sold"),
               
               fluidPage(
-                
+                dateRangeInput('dateRange',
+                               label = 'Date',
+                               start = Sys.Date() - 2, end = Sys.Date() + 2), 
                 box(
                   title="Top 10 Selling Items",
                   width = 800,
@@ -78,7 +80,7 @@ ui <- dashboardPage(
                 fluidRow(
                   column(4, dateRangeInput('dateRangePie',
                                            label = 'Date range: yyyy-mm-dd',
-                                           start = min(clean_entire$New_Date), end = Sys.Date() + 2)), 
+                                           start = Sys.Date() - 2, end = Sys.Date() + 2)), 
                   
                   column(4,selectInput('cat', 'Category', c('All', levels(clean_entire$Category)))),
                   
@@ -99,7 +101,7 @@ ui <- dashboardPage(
                            column(4, selectInput(
                              inputId = "ItemInput", 
                              label = "Item", 
-                             choices = c('All', sort(unique(clean_entire$Item))))),
+                             choices = sort(unique(clean_entire$Item)))),
                            
                            column(4, dateRangeInput(inputId = 'DateRangeInput2',
                                                     label = 'Date',
@@ -114,7 +116,6 @@ ui <- dashboardPage(
       # Third tab content
       tabItem(tabName = "social",
               h2("Social Media"),
-              h2("Link to social media analytics:https://raw.githubusercontent.com/riddhi0101/ARS_DataAnalytics/main/Dashboard_rshiny/app.R "),
               #from online reference
               #databases
               shinyUI(pageWithSidebar(
@@ -122,25 +123,23 @@ ui <- dashboardPage(
                 
                 sidebarPanel(
                   
-                  fileInput('datafile', 'Choose CSV file',
-                            accept=c('text/csv', 'text/comma-separated-values,text/plain')),
-                  
-                  uiOutput("fromCol"),
-                  uiOutput("toCol"),
-                  uiOutput("amountflag"),
-                  
-                  conditionalPanel(
-                    condition="input.amountflag==true",
-                    uiOutput("amountCol")
+                  fileInput("file1", "Choose CSV File",
+                            accept = c(
+                              "text/csv",
+                              "text/comma-separated-values,text/plain",
+                              ".csv")
                   ),
-                  
-                  
+                  tags$hr(),
+                  checkboxInput("header", "Header", TRUE)
                 ),
                 mainPanel(
-                  tableOutput("filetable"),
-                  tableOutput("geotable")
+                  tableOutput("contents")
                 )
-              ))
+              )
+              )
+              
+                
+              
       )
     )
     
@@ -151,43 +150,34 @@ ui <- dashboardPage(
 library(dplyr)
 
 server <- function(input, output) {
+  output$contents <- renderTable({
+    # input$file1 will be NULL initially. After the user selects
+    # and uploads a file, it will be a data frame with 'name',
+    # 'size', 'type', and 'datapath' columns. The 'datapath'
+    # column will contain the local filenames where the data can
+    # be found.
+    inFile <- input$file1
+    
+    if (is.null(inFile))
+      return(NULL)
+    
+    read.csv(inFile$datapath, header = input$header)
+  })
+}
   
   dataFilter2 <- reactive({
     if (input$DayInput != "All") {
-      if (input$ItemInput == 'All'){
-        filtered <- clean_entire %>%
-          filter(Day == input$DayInput, between(New_Date, input$DateRangeInput2[1],
-                                                                         input$DateRangeInput2[2])) %>%
-          group_by(New_Date)
-        
-        filtered[,c(1,8,2,4,3)]
-      }
-      else{filtered <- clean_entire %>%
+      filtered <- clean_entire %>%
         filter(Day == input$DayInput, Item == input$ItemInput, between(New_Date, input$DateRangeInput2[1],
                                                                        input$DateRangeInput2[2])) %>%
         group_by(New_Date)
-      
       filtered[,c(1,8,2,4,3)]
-      }
-      
     }
-    else {
-      if (input$ItemInput == 'All'){
-        filtered <- clean_entire %>%
-          filter(between(New_Date, input$DateRangeInput2[1],
-                                                  input$DateRangeInput2[2])) %>%
-          group_by(New_Date)
-        filtered[,c(1,8,2,4,3)]
-        
-      }
-      else{
-        filtered <- clean_entire %>%
-          filter(Item == input$ItemInput, between(New_Date, input$DateRangeInput2[1],
-                                                  input$DateRangeInput2[2])) %>%
-          group_by(New_Date)
-        filtered[,c(1,8,2,4,3)]
-      }
-      
+    else {filtered <- clean_entire %>%
+      filter(Item == input$ItemInput, between(New_Date, input$DateRangeInput2[1],
+                                              input$DateRangeInput2[2])) %>%
+      group_by(New_Date)
+    filtered[,c(1,8,2,4,3)]
     }
   })
   
@@ -261,5 +251,5 @@ server <- function(input, output) {
     
   })
   
-}
+
 shinyApp(ui, server)
