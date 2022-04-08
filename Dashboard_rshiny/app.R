@@ -192,7 +192,7 @@ server <- function(input, output) {
       }
       
     }
-    else {filtered <- clean_entire %>%
+    else {
       if (input$ItemInput == 'All'){
         filtered <- clean_entire %>%
           filter(between(New_Date, input$DateRangeInput2[1],
