@@ -163,6 +163,7 @@ server <- function(input, output) {
     
     read.csv(inFile$datapath, header = input$header)
   })
+}
   
   dataFilter2 <- reactive({
     if (input$DayInput != "All") {
@@ -250,6 +251,5 @@ server <- function(input, output) {
     
   })
   
-}
 
 shinyApp(ui, server)
