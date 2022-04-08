@@ -20,7 +20,7 @@ library(plotly)
 ## app.R ##
 
 #Data Prep
-urlfile<-'https://raw.githubusercontent.com/riddhi0101/ARS_DataAnalytics/main/Data/clean_entire.csv'
+urlfile<-'https://raw.githubusercontent.com/riddhi0101/ARS_DataAnalytics/main/Dashboard_rshiny/clean_entire.csv'
 clean_entire <-read_csv(url(urlfile))
 clean_entire <- clean_entire[complete.cases(clean_entire),]
 clean_entire$Price <- as.numeric(round(parse_number(clean_entire$Price),0))
