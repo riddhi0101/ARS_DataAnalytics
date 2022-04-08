@@ -47,7 +47,7 @@ ui <- dashboardPage(
               fluidPage(
                 fluidRow(
                   infoBox("Total Items Sold", nrow(clean_entire), icon = icon("cash-register"), fill = TRUE),
-                  #infoBox("Pop-up Sales Revenue", sum(popupsales$price), icon = icon("credit-card"), fill = TRUE, color = "olive"),
+                  infoBox("Pop-up Sales Revenue", sum(popupsales$price), icon = icon("credit-card"), fill = TRUE, color = "olive"),
                   infoBox("Fall Sales Revenue", sum(clean_entire$Price), icon = icon("store"), fill = TRUE, color = "purple")
                 ), 
                 titlePanel("Total Revenue Per Pop-up Sale"),
@@ -69,9 +69,9 @@ ui <- dashboardPage(
               h2("Items Sold"),
               
               fluidPage(
-                dateRangeInput('dateRange',
-                               label = 'Date',
-                               start = Sys.Date() - 2, end = Sys.Date() + 2), 
+              #  dateRangeInput('dateRange',
+              #                 label = 'Date',
+              #                 start = Sys.Date() - 2, end = Sys.Date() + 2), 
                 box(
                   title="Top 10 Selling Items",
                   width = 800,
@@ -118,26 +118,35 @@ ui <- dashboardPage(
               h2("Social Media"),
               #from online reference
               #databases
-              shinyUI(pageWithSidebar(
-                headerPanel("Social Media Analytics"),
-                
-                sidebarPanel(
+              fluidPage(
+                fluidRow(
+                  infoBox("Cities with Most Traffic: Davis, LA, San Diego, Sacramento",icon = icon("map"),fill = FALSE, color = "purple"),
+                  infoBox("Top Age Range: 18-24",icon = icon("user"),fill = FALSE, color = "olive"),
+                  infoBox("Profile Visits: 1,994",icon = icon("store"),fill = FALSE, color = "red"),
+                  infoBox("% of Women Reached: 73.8%",icon = icon("thumbs-up"),fill = FALSE, color = "lime"),
+                  infoBox("% of Men Reached: 26.1%",icon = icon("thumbs-up"),fill = FALSE, color = "lime")
                   
-                  fileInput("file1", "Choose CSV File",
-                            accept = c(
-                              "text/csv",
-                              "text/comma-separated-values,text/plain",
-                              ".csv")
-                  ),
-                  tags$hr(),
-                  checkboxInput("header", "Header", TRUE)
                 ),
-                mainPanel(
-                  tableOutput("contents")
+                shinyUI(pageWithSidebar(
+                  headerPanel("Social Media Analytics"),
+                  
+                  sidebarPanel(
+                    
+                    fileInput("file1", "Choose CSV File",
+                              accept = c(
+                                "text/csv",
+                                "text/comma-separated-values,text/plain",
+                                ".csv")
+                    ),
+                    tags$hr(),
+                    checkboxInput("header", "Header", TRUE)
+                  ),
+                  mainPanel(
+                    tableOutput("contents")
+                  )
+                )
                 )
               )
-              )
-              
               
               
       )
